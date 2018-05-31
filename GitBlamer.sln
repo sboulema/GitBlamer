@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2018
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitBlamer", "GitBlamer\GitBlamer.csproj", "{BACECAFE-E2A5-4A55-B8E2-6855182C9B30}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C2DEE7E5-24E2-41F2-975D-83A2D69012D2}"
+	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BACECAFE-E2A5-4A55-B8E2-6855182C9B30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BACECAFE-E2A5-4A55-B8E2-6855182C9B30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BACECAFE-E2A5-4A55-B8E2-6855182C9B30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BACECAFE-E2A5-4A55-B8E2-6855182C9B30}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2D3579C0-D5BB-4C26-81C6-08FFF9507CCC}
+	EndGlobalSection
+EndGlobal
