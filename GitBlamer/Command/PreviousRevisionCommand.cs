@@ -1,21 +1,22 @@
 ﻿using System;
 using System.ComponentModel.Design;
-using System.Globalization;
-using GitBlamer.ToolWindow;
+using System.IO;
+using EnvDTE;
+using GitBlamer.Helpers;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using Task = System.Threading.Tasks.Task;
 
 namespace GitBlamer
 {
-    internal sealed class GitBlamerCommand
+    internal sealed class PreviousRevisionCommand
     {
         public const int CommandId = 0x0100;
         public static readonly Guid CommandSet = new Guid("0d5a4968-48e2-45aa-987b-0196b9c63d99");
 
         private readonly AsyncPackage package;
+        private readonly DTE _dte;
 
-        private GitBlamerCommand(AsyncPackage package, OleMenuCommandService commandService)
+        private PreviousRevisionCommand(AsyncPackage package, OleMenuCommandService commandService)
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
@@ -23,9 +24,11 @@ namespace GitBlamer
             var menuCommandID = new CommandID(CommandSet, CommandId);
             var menuItem = new MenuCommand(this.Execute, menuCommandID);
             commandService.AddCommand(menuItem);
+
+            _dte = (package as GitBlamerPackage).DTE;
         }
 
-        public static GitBlamerCommand Instance
+        public static PreviousRevisionCommand Instance
         {
             get;
             private set;
@@ -46,24 +49,39 @@ namespace GitBlamer
             ThreadHelper.ThrowIfNotOnUIThread();
 
             OleMenuCommandService commandService = await package.GetServiceAsync((typeof(IMenuCommandService))) as OleMenuCommandService;
-            Instance = new GitBlamerCommand(package, commandService);
+            Instance = new PreviousRevisionCommand(package, commandService);
         }
 
         private void Execute(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-
-            // Get the instance number 0 of this tool window. This window is single instance so this instance
-            // is actually the only one.
-            // The last flag is set to true so that if the tool window does not exists it will be created.
-            ToolWindowPane window = this.package.FindToolWindow(typeof(GitBlamerToolWindow), 0, true);
-            if ((null == window) || (null == window.Frame))
+           
+            if (_dte.ActiveWindow.Caption.Contains(" vs. "))
             {
-                throw new NotSupportedException("Cannot create tool window");
+                _dte.ActiveWindow.Close();
             }
 
-            IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
-            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
+            if (!_dte.ActiveDocument.FullName.Equals(CommandHelper.FilePath))
+            {
+                CommandHelper.Revisions = null;
+                CommandHelper.FilePath = null;
+            }
+
+            if (string.IsNullOrEmpty(CommandHelper.FilePath))
+            {
+                CommandHelper.FilePath = _dte.ActiveDocument.FullName;
+            }
+
+            var revisions = CommandHelper.GetRevisions(_dte);
+
+            var rev1 = CommandHelper.SaveRevisionToFile(_dte, revisions[CommandHelper.CurrentIndex]);
+            CommandHelper.CurrentIndex++;
+            var rev2 = CommandHelper.SaveRevisionToFile(_dte, revisions[CommandHelper.CurrentIndex]);
+
+            _dte.ExecuteCommand("Tools.DiffFiles", $"\"{rev2}\" \"{rev1}\"");
+
+            File.Delete(rev1);
+            File.Delete(rev2);
         }
     }
 }

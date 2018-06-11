@@ -4,19 +4,36 @@
   <Extern href="vsshlids.h" />
 
   <Commands package="guidGitBlamerCommandPackage">
-    
+
+    <Menus>
+      <Menu guid="guidGitBlamerCommandPackageCmdSet" id="Toolbar" type="Toolbar">
+        <Strings>
+          <ButtonText>Git Blamer</ButtonText>
+          <CommandName>Git Blamer</CommandName>
+        </Strings>
+      </Menu>
+    </Menus>
+
     <Groups>
-      <Group guid="guidGitBlamerCommandPackageCmdSet" id="GitBlamerMenuGroup" priority="0x0600">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN" />
+      <Group guid="guidGitBlamerCommandPackageCmdSet" id="GitBlamerToolbarGroup" priority="0x0600">
+        <Parent guid="guidGitBlamerCommandPackageCmdSet" id="Toolbar" />
       </Group>
     </Groups>
 
     <Buttons>
-      <Button guid="guidGitBlamerCommandPackageCmdSet" id="GitBlamerCommandId" priority="0x0100" type="Button">
-        <Parent guid="guidGitBlamerCommandPackageCmdSet" id="GitBlamerMenuGroup" />
+      <Button guid="guidGitBlamerCommandPackageCmdSet" id="GitBlamerPreviousRevisionCommandId" priority="0x0100" type="Button">
+        <Parent guid="guidGitBlamerCommandPackageCmdSet" id="GitBlamerToolbarGroup" />
         <Icon guid="guidImages" id="bmpPic1" />
         <Strings>
-          <ButtonText>Git Blamer</ButtonText>
+          <ButtonText>Previous revision</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="guidGitBlamerCommandPackageCmdSet" id="GitBlamerLaterRevisionCommandId" priority="0x0100" type="Button">
+        <Parent guid="guidGitBlamerCommandPackageCmdSet" id="GitBlamerToolbarGroup" />
+        <Icon guid="guidImages" id="bmpPic2" />
+        <Strings>
+          <ButtonText>Later revision</ButtonText>
         </Strings>
       </Button>
     </Buttons>
@@ -28,10 +45,12 @@
 
   <Symbols>
     <GuidSymbol name="guidGitBlamerCommandPackage" value="{492cc0c2-bdd8-4279-a8a8-1c353760ad68}" />
-
+   
     <GuidSymbol name="guidGitBlamerCommandPackageCmdSet" value="{0d5a4968-48e2-45aa-987b-0196b9c63d99}">
-      <IDSymbol name="GitBlamerMenuGroup" value="0x1020" />
-      <IDSymbol name="GitBlamerCommandId" value="0x0100" />
+      <IDSymbol name="GitBlamerToolbarGroup" value="0x1030" />
+      <IDSymbol name="GitBlamerPreviousRevisionCommandId" value="0x0100" />
+      <IDSymbol name="GitBlamerLaterRevisionCommandId" value="0x0200" />
+      <IDSymbol name="Toolbar" value="0x1000" />
     </GuidSymbol>
 
     <GuidSymbol name="guidImages" value="{6f0a8534-ff85-4895-9df7-9a7d512b7262}">
