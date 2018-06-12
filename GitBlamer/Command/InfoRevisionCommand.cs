@@ -2,6 +2,7 @@
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using EnvDTE;
 using GitBlamer.Helpers;
 using Microsoft.VisualStudio.Shell;
@@ -9,15 +10,15 @@ using Task = System.Threading.Tasks.Task;
 
 namespace GitBlamer
 {
-    internal sealed class LaterRevisionCommand
+    internal sealed class InfoRevisionCommand
     {
-        public const int CommandId = 0x0200;
+        public const int CommandId = 0x0300;
         public static readonly Guid CommandSet = new Guid("0d5a4968-48e2-45aa-987b-0196b9c63d99");
 
         private readonly AsyncPackage package;
         private readonly DTE _dte;
 
-        private LaterRevisionCommand(AsyncPackage package, OleMenuCommandService commandService)
+        private InfoRevisionCommand(AsyncPackage package, OleMenuCommandService commandService)
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
@@ -35,11 +36,10 @@ namespace GitBlamer
         private void MenuItem_BeforeQueryStatus(object sender, EventArgs e)
         {
             ((OleMenuCommand)sender).Enabled = CommandHelper.Revisions != null &&
-                                               CommandHelper.Revisions.Any() &&
-                                               CommandHelper.CurrentIndex > 0;
+                                               CommandHelper.Revisions.Any();
         }
 
-        public static LaterRevisionCommand Instance
+        public static InfoRevisionCommand Instance
         {
             get;
             private set;
@@ -60,14 +60,14 @@ namespace GitBlamer
             ThreadHelper.ThrowIfNotOnUIThread();
 
             OleMenuCommandService commandService = await package.GetServiceAsync((typeof(IMenuCommandService))) as OleMenuCommandService;
-            Instance = new LaterRevisionCommand(package, commandService);
+            Instance = new InfoRevisionCommand(package, commandService);
         }
 
         private void Execute(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            CommandHelper.MoveRevision(_dte, false);
+            MessageBox.Show(CommandHelper.GetCurrentRevisionInfo(), "Git Blamer", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

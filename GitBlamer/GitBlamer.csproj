@@ -57,6 +57,7 @@
     <DeployExtension Condition=" '$(AppVeyor)' != '' ">False</DeployExtension>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Command\InfoRevisionCommand.cs" />
     <Compile Include="Command\LaterRevisionCommand.cs" />
     <Compile Include="Command\PreviousRevisionCommand.cs" />
     <Compile Include="GitBlamerPackage.cs" />
@@ -72,11 +73,17 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\License.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <VSCTCompile Include="GitBlamerPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
-    <Content Include="Resources\GitBlamerCommand.png" />
-    <Content Include="Resources\GitBlamerCommandPackage.ico" />
+    <Content Include="Resources\GitBlamer.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.7.7\analyzers\cs\Microsoft.VisualStudio.SDK.Analyzers.dll" />
@@ -191,6 +198,7 @@
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>
       <ManifestResourceName>VSPackage</ManifestResourceName>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

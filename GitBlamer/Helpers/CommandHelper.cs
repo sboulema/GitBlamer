@@ -15,15 +15,19 @@ namespace GitBlamer.Helpers
         public static string FilePath;
         public static List<Revision> Revisions;
 
-        public static string SaveRevisionToFile(DTE dte, Revision revision)
+        public static Revision SaveRevisionToFile(DTE dte, Revision revision)
         {
-            var fileName = Path.GetFileName(FilePath);
+            var fileName = Path.GetFileNameWithoutExtension(FilePath);
+            var fileExtension = Path.GetExtension(FilePath);
             var tempPath = Path.GetTempPath();
-            var revisionPath = Path.Combine(tempPath, $"{fileName};{revision.ShortSha}");
+            var revisionPath = Path.Combine(tempPath, $"{fileName};{revision.ShortSha}{fileExtension}");
 
             File.WriteAllText(revisionPath, GetText(dte, revision, FilePath));
 
-            return revisionPath;
+            revision.FilePath = revisionPath;
+            revision.FileDisplayName = $"{fileName}{fileExtension};{revision.ShortSha}";
+
+            return revision;
         }
 
         public static List<Revision> GetRevisions(DTE dte)
@@ -36,22 +40,23 @@ namespace GitBlamer.Helpers
 
                 if (string.IsNullOrEmpty(solutionDir) || dte.ActiveDocument == null) return revisions;
 
-                var result = StartProcessGitResult($"log --format=\"%h|%an|%s\" {FilePath}", solutionDir);
+                var result = StartProcessGitResult($"log --format=\"%h|%an|%s|%b\" {FilePath}", solutionDir);
 
-                if (string.IsNullOrEmpty(result))
+                if (!result.Any())
                 {
                     Revisions = revisions;
                     return revisions;
                 }
 
-                foreach (var revision in result.Split(';'))
+                foreach (var revision in result)
                 {
                     var info = revision.Split('|');
                     revisions.Add(new Revision
                     {
                         ShortSha = info[0],
                         Name = info[1],
-                        Subject = info[2]
+                        Subject = info[2],
+                        Message = info[3]
                     });
                 }
 
@@ -61,17 +66,10 @@ namespace GitBlamer.Helpers
             return Revisions;
         }
 
-        public static string GetBlame(DTE dte, Revision revision, string filePath)
-        {
-            var relativeFilePath = GetRelativePath(GetSolutionDir(dte), filePath);
-            var result = StartProcessGitResult($"blame -s {revision.ShortSha} {filePath}", GetSolutionDir(dte));
-            return result.Replace(";", Environment.NewLine);
-        }
-
         public static string GetText(DTE dte, Revision revision, string filePath)
         {
             var relativeFilePath = GetRelativePath(GetSolutionDir(dte), filePath);
-            return StartProcessGitResult($"show {revision.ShortSha}:{relativeFilePath}", GetSolutionDir(dte)).Replace(";", Environment.NewLine);
+            return string.Join(Environment.NewLine, StartProcessGitResult($"show {revision.ShortSha}:{relativeFilePath}", GetSolutionDir(dte)));
         }
 
         private static string GetSolutionDir(DTE dte)
@@ -109,12 +107,13 @@ namespace GitBlamer.Helpers
         /// </summary>
         /// <param name="commands">Git command to be executed</param>
         /// <returns>Git output</returns>
-        public static string StartProcessGitResult(string commands, string solutionDir)
+        public static List<string> StartProcessGitResult(string commands, string solutionDir)
         {
-            if (string.IsNullOrEmpty(solutionDir)) return string.Empty;
+            var output = new List<string>();
+            var error = new List<string>();
 
-            var output = string.Empty;
-            var error = string.Empty;
+            if (string.IsNullOrEmpty(solutionDir)) return new List<string>();
+
             var proc = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -130,14 +129,73 @@ namespace GitBlamer.Helpers
             proc.Start();
             while (!proc.StandardOutput.EndOfStream)
             {
-                output += proc.StandardOutput.ReadLine() + ";";
+                output.Add(proc.StandardOutput.ReadLine());
             }
             while (!proc.StandardError.EndOfStream)
             {
-                error += proc.StandardError.ReadLine();
+                error.Add(proc.StandardError.ReadLine());
             }
 
-            return string.IsNullOrEmpty(output) ? error : output.TrimEnd(';');
+            return output.Count == 0 ? error : output;
+        }
+
+        public static string GetCurrentRevisionInfo()
+        {
+            var currentRevision = Revisions[CurrentIndex];
+
+            return $"Revision: {currentRevision.ShortSha}" + Environment.NewLine +
+                $"Author: {currentRevision.Name}" + Environment.NewLine +
+                $"Subject: {currentRevision.Subject}" + Environment.NewLine +
+                $"Message: {currentRevision.Message}";
+        }
+
+        /// <summary>
+        /// Move between revisions of a file
+        /// </summary>
+        /// <param name="dte"></param>
+        /// <param name="previous">Move to a previous revision or later revision</param>
+        public static void MoveRevision(DTE dte, bool previous)
+        {
+            // Close any active 'Compare Files' tab
+            if (dte.ActiveWindow.Caption.Contains(" vs. "))
+            {
+                dte.ActiveWindow.Close();
+            }
+
+            // If we changed files clear any history
+            if (!dte.ActiveDocument.FullName.Equals(FilePath))
+            {
+                Revisions = null;
+                FilePath = null;
+            }
+
+            // Save current file as active
+            if (string.IsNullOrEmpty(FilePath))
+            {
+                FilePath = dte.ActiveDocument.FullName;
+            }
+
+            // Get Git revisions for file
+            var revisions = GetRevisions(dte);
+
+            var rev1 = SaveRevisionToFile(dte, revisions[CurrentIndex]);
+
+            if (previous)
+            {
+                CurrentIndex++;
+            }
+            else
+            {
+                CurrentIndex--;
+            }
+            
+            var rev2 = SaveRevisionToFile(dte, revisions[CurrentIndex]);
+
+            // Open 'Compare Files' tab for the two revisions
+            dte.ExecuteCommand("Tools.DiffFiles", $"\"{rev2.FilePath}\" \"{rev1.FilePath}\" \"{rev2.FileDisplayName}\" \"{rev1.FileDisplayName}\"");
+
+            File.Delete(rev1.FilePath);
+            File.Delete(rev2.FilePath);
         }
     }
 }

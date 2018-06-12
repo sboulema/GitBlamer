@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.Design;
 using System.IO;
+using System.Linq;
 using EnvDTE;
 using GitBlamer.Helpers;
 using Microsoft.VisualStudio.Shell;
@@ -22,10 +23,19 @@ namespace GitBlamer
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
             var menuCommandID = new CommandID(CommandSet, CommandId);
-            var menuItem = new MenuCommand(this.Execute, menuCommandID);
+            var menuItem = new OleMenuCommand(this.Execute, menuCommandID);
+
+            menuItem.BeforeQueryStatus += MenuItem_BeforeQueryStatus;
+
             commandService.AddCommand(menuItem);
 
             _dte = (package as GitBlamerPackage).DTE;
+        }
+
+        private void MenuItem_BeforeQueryStatus(object sender, EventArgs e)
+        {
+            ((OleMenuCommand)sender).Enabled = CommandHelper.Revisions == null ||
+                (CommandHelper.Revisions.Count - 1) != CommandHelper.CurrentIndex;
         }
 
         public static PreviousRevisionCommand Instance
@@ -55,33 +65,8 @@ namespace GitBlamer
         private void Execute(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-           
-            if (_dte.ActiveWindow.Caption.Contains(" vs. "))
-            {
-                _dte.ActiveWindow.Close();
-            }
 
-            if (!_dte.ActiveDocument.FullName.Equals(CommandHelper.FilePath))
-            {
-                CommandHelper.Revisions = null;
-                CommandHelper.FilePath = null;
-            }
-
-            if (string.IsNullOrEmpty(CommandHelper.FilePath))
-            {
-                CommandHelper.FilePath = _dte.ActiveDocument.FullName;
-            }
-
-            var revisions = CommandHelper.GetRevisions(_dte);
-
-            var rev1 = CommandHelper.SaveRevisionToFile(_dte, revisions[CommandHelper.CurrentIndex]);
-            CommandHelper.CurrentIndex++;
-            var rev2 = CommandHelper.SaveRevisionToFile(_dte, revisions[CommandHelper.CurrentIndex]);
-
-            _dte.ExecuteCommand("Tools.DiffFiles", $"\"{rev2}\" \"{rev1}\"");
-
-            File.Delete(rev1);
-            File.Delete(rev2);
+            CommandHelper.MoveRevision(_dte, true);
         }
     }
 }
