@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="GitBlamer.b52a4741-0e59-49d0-bb93-8f6ea76f3248" Version="0.1" Language="en-US" Publisher="Samir L. Boulema" />
+        <Identity Id="GitBlamer.b52a4741-0e59-49d0-bb93-8f6ea76f3248" Version="0.1" Language="en-US" Publisher="Samir Boulema" />
         <DisplayName>GitBlamer</DisplayName>
         <Description xml:space="preserve">Quickly step through the Git history of a file</Description>
         <License>Resources\License.txt</License>
