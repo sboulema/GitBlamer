@@ -1,7 +1,5 @@
 ﻿using System;
 using System.ComponentModel.Design;
-using System.IO;
-using System.Linq;
 using EnvDTE;
 using GitBlamer.Helpers;
 using Microsoft.VisualStudio.Shell;
@@ -34,8 +32,7 @@ namespace GitBlamer
 
         private void MenuItem_BeforeQueryStatus(object sender, EventArgs e)
         {
-            ((OleMenuCommand)sender).Enabled = CommandHelper.Revisions == null ||
-                (CommandHelper.Revisions.Count - 1) != CommandHelper.CurrentIndex;
+            ((OleMenuCommand)sender).Enabled = CommandHelper.PreviousRevisionCommandIsEnabled(_dte);
         }
 
         public static PreviousRevisionCommand Instance

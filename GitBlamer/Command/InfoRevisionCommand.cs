@@ -1,11 +1,12 @@
 ﻿using System;
 using System.ComponentModel.Design;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using EnvDTE;
 using GitBlamer.Helpers;
+using GitBlamer.ToolWindows;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using Task = System.Threading.Tasks.Task;
 
 namespace GitBlamer
@@ -67,7 +68,14 @@ namespace GitBlamer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            MessageBox.Show(CommandHelper.GetCurrentRevisionInfo(), "Git Blamer", MessageBoxButton.OK, MessageBoxImage.Information);
+            ToolWindowPane window = this.package.FindToolWindow(typeof(CommitDetailsToolWindow), 0, true);
+            if ((null == window) || (null == window.Frame))
+            {
+                throw new NotSupportedException("Cannot create tool window");
+            }
+
+            IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
+            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
         }
     }
 }

@@ -2,7 +2,7 @@
 <CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <Extern href="stdidcmd.h" />
   <Extern href="vsshlids.h" />
-  <Include href="KnownImageIds.vsct"/>
+  <Include href="KnownImageIds.vsct" />
 
   <Commands package="guidGitBlamerCommandPackage">
 
@@ -48,8 +48,19 @@
           <ButtonText>Later revision</ButtonText>
         </Strings>
       </Button>
+      
+      <Button guid="guidGitBlamerPackageCmdSet" id="cmdidCommitDetailsToolWindowCommand" priority="0x0100" type="Button">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
+        <Icon guid="guidImages" id="bmpPic1" />
+        <Strings>
+          <ButtonText>Git Blamer</ButtonText>
+        </Strings>
+      </Button>
     </Buttons>
 
+    <Bitmaps>
+      <Bitmap guid="guidImages" href="ToolWindows\Resources\CommitDetailsToolWindowCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
+    </Bitmaps>
   </Commands>
 
   <Symbols>
@@ -61,6 +72,19 @@
       <IDSymbol name="GitBlamerLaterRevisionCommandId" value="0x0200" />
       <IDSymbol name="GitBlamerInfoRevisionCommandId" value="0x0300" />
       <IDSymbol name="Toolbar" value="0x1000" />
+    </GuidSymbol>
+  
+    <GuidSymbol value="{743a2579-4240-4812-b46f-64e5a3ba577d}" name="guidGitBlamerPackageCmdSet">
+      <IDSymbol value="256" name="cmdidCommitDetailsToolWindowCommand" />
+    </GuidSymbol>
+  
+    <GuidSymbol value="{e430c329-b56f-47ed-86f4-5635c22ebb93}" name="guidImages">
+      <IDSymbol name="bmpPic1" value="1" />
+      <IDSymbol name="bmpPic2" value="2" />
+      <IDSymbol name="bmpPicSearch" value="3" />
+      <IDSymbol name="bmpPicX" value="4" />
+      <IDSymbol name="bmpPicArrows" value="5" />
+      <IDSymbol name="bmpPicStrikethrough" value="6" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>

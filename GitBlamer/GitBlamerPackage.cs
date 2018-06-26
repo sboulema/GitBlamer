@@ -15,6 +15,7 @@ namespace GitBlamer
     [Guid(GitBlamerPackage.PackageGuidString)]
     [ProvideAutoLoad(UIContextGuids80.SolutionExists, PackageAutoLoadFlags.BackgroundLoad)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
+    [ProvideToolWindow(typeof(GitBlamer.ToolWindows.CommitDetailsToolWindow))]
     public sealed class GitBlamerPackage : AsyncPackage
     {
         public const string PackageGuidString = "492cc0c2-bdd8-4279-a8a8-1c353760ad68";
@@ -30,10 +31,11 @@ namespace GitBlamer
         {
             DTE = await GetServiceAsync(typeof(DTE)) as DTE;
 
-            await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             await PreviousRevisionCommand.InitializeAsync(this);
             await LaterRevisionCommand.InitializeAsync(this);
             await InfoRevisionCommand.InitializeAsync(this);
+            await ToolWindows.CommitDetailsToolWindowCommand.InitializeAsync(this);
         }
 
         #endregion
