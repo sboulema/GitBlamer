@@ -4,6 +4,15 @@ namespace GitBlamer.Models
 {
     public class Revision
     {
+        public Revision(string input)
+        {
+            var revision = input.Split('|');
+            ShortSha = revision[0];
+            Name = revision[1];
+            Subject = revision[2];
+            Message = revision[3];
+        }
+
         public string ShortSha { get; set; }
         public string Name { get; set; }
         public string Subject { get; set; }

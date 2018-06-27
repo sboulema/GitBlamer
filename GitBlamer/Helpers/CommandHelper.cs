@@ -19,20 +19,24 @@ namespace GitBlamer.Helpers
 
         public static Revision SaveRevisionToFile(DTE dte, Revision revision)
         {
-            var fileName = Path.GetFileNameWithoutExtension(FilePath);
-            var fileExtension = Path.GetExtension(FilePath);
+            var fileName = Path.GetFileNameWithoutExtension(revision.FilePath);
+            var fileExtension = Path.GetExtension(revision.FilePath);
             var tempPath = Path.GetTempPath();
             var revisionPath = Path.Combine(tempPath, $"{fileName};{revision.ShortSha}{fileExtension}");
 
-            File.WriteAllText(revisionPath, GetText(revision, FilePath));
+            File.WriteAllText(revisionPath, GetText(revision));
 
             revision.RevisionPath = revisionPath;
-            revision.FilePath = FilePath;
             revision.FileDisplayName = $"{fileName}{fileExtension};{revision.ShortSha}";
 
             return revision;
         }
 
+        /// <summary>
+        /// Get all revisions for a file
+        /// </summary>
+        /// <param name="dte"></param>
+        /// <returns></returns>
         public static List<Revision> GetRevisions(DTE dte)
         {
             if (Revisions == null)
@@ -43,7 +47,7 @@ namespace GitBlamer.Helpers
 
                 if (string.IsNullOrEmpty(solutionDir) || dte.ActiveDocument == null) return revisions;
 
-                var result = StartProcessGitResult($"log --follow --format=\"%h|%an|%s|%b\" {FilePath}", solutionDir);
+                var result = StartProcessGitResult($"log --follow --name-only --format=\"%h|%an|%s|%b\" {FilePath}", solutionDir);
 
                 if (!result.Any())
                 {
@@ -51,16 +55,12 @@ namespace GitBlamer.Helpers
                     return revisions;
                 }
 
-                foreach (var revision in result)
+                for (var i = 0; i < result.Count; i = i + 3)
                 {
-                    var info = revision.Split('|');
-                    revisions.Add(new Revision
-                    {
-                        ShortSha = info[0],
-                        Name = info[1],
-                        Subject = info[2],
-                        Message = info[3]
-                    });
+                    var lines = result.Skip(i).Take(3).ToList();
+                    var revision = new Revision(lines[0]);
+                    revision.FilePath = lines[2];
+                    revisions.Add(revision);
                 }
 
                 Revisions = revisions;
@@ -69,10 +69,15 @@ namespace GitBlamer.Helpers
             return Revisions;
         }
 
-        public static string GetText(Revision revision, string filePath)
+        /// <summary>
+        /// Get the full text for a given file revision
+        /// </summary>
+        /// <param name="revision"></param>
+        /// <returns></returns>
+        public static string GetText(Revision revision)
         {
-            var fileDirectory = Path.GetDirectoryName(filePath);
-            var fileName = Path.GetFileName(filePath);
+            var fileDirectory = Path.GetDirectoryName(FilePath);
+            var fileName = Path.GetFileName(revision.FilePath);
 
             return string.Join(Environment.NewLine, StartProcessGitResult($"show {revision.ShortSha}:./{fileName}", fileDirectory));
         }
@@ -137,16 +142,6 @@ namespace GitBlamer.Helpers
             }
 
             return output.Count == 0 ? error : output;
-        }
-
-        public static string GetCurrentRevisionInfo()
-        {
-            var currentRevision = Revisions[CurrentIndex];
-
-            return $"Revision: {currentRevision.ShortSha}" + Environment.NewLine +
-                $"Author: {currentRevision.Name}" + Environment.NewLine +
-                $"Subject: {currentRevision.Subject}" + Environment.NewLine +
-                $"Message: {currentRevision.Message}";
         }
 
         /// <summary>
