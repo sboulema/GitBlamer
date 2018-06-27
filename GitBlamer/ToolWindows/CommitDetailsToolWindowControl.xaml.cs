@@ -33,5 +33,14 @@
 
         private void LaterRevisionButton_Click(object sender, System.Windows.RoutedEventArgs e) 
             => CommandHelper.MoveRevision(Dte, false);
+
+        private void ShowBothCommits_Click(object sender, System.Windows.RoutedEventArgs e)
+            => ViewModel.ShowBothCommits = !ViewModel.ShowBothCommits;
+
+        private void FlipCommits_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ViewModel.Revision1.GridRow = ViewModel.Revision1.GridRow == 1 ? 3 : 1;
+            ViewModel.Revision2.GridRow = ViewModel.Revision2.GridRow == 1 ? 3 : 1;
+        }
     }
 }

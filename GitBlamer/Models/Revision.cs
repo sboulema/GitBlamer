@@ -1,8 +1,9 @@
-﻿using System.Windows;
+﻿using Caliburn.Micro;
+using System.Windows;
 
 namespace GitBlamer.Models
 {
-    public class Revision
+    public class Revision : PropertyChangedBase
     {
         public Revision(string input)
         {
@@ -33,12 +34,16 @@ namespace GitBlamer.Models
         /// </summary>
         public string RevisionPath { get; set; }
 
-        public Visibility HasMessage
-        {
-            get
+        private int _gridRow;
+        public int GridRow {
+            get => _gridRow;
+            set
             {
-                return string.IsNullOrEmpty(Message) ? Visibility.Collapsed : Visibility.Visible;
+                _gridRow = value;
+                NotifyOfPropertyChange();
             }
         }
+
+        public Visibility HasMessage => string.IsNullOrEmpty(Message) ? Visibility.Collapsed : Visibility.Visible;
     }
 }

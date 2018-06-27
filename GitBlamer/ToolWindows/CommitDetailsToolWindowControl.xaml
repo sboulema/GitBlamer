@@ -16,7 +16,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="5" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -38,9 +38,53 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
+
+            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+            
+            <ToggleButton Style="{StaticResource {x:Type ToggleButton}}" Click="ShowBothCommits_Click">
+                <ToggleButton.Template>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="ToggleBorder" BorderBrush="SteelBlue" BorderThickness="0">
+                            <imaging:CrispImage x:Name="ToggleButtonImage" Width="14" Height="14" Moniker="{x:Static catalog:KnownMonikers.DocumentCollection}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="ToggleBorder" Property="BorderThickness" Value="1"/>
+                                <Setter TargetName="ToggleButtonImage" Property="Moniker" Value="{x:Static catalog:KnownMonikers.DocumentCollection}"/>
+                                <Setter Property="ToolTip" Value="Show single commit" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter TargetName="ToggleBorder" Property="BorderThickness" Value="0"/>
+                                <Setter TargetName="ToggleButtonImage" Property="Moniker" Value="{x:Static catalog:KnownMonikers.Document}"/>
+                                <Setter Property="ToolTip" Value="Show both commits" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </ToggleButton.Template>
+            </ToggleButton>
+
+            <ToggleButton Style="{StaticResource {x:Type ToggleButton}}" ToolTip="Flip commits" 
+                          Visibility="{Binding BothCommitsVisible}" Click="FlipCommits_Click">
+                <ToggleButton.Template>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="ToggleBorder" BorderBrush="SteelBlue" BorderThickness="0">
+                            <imaging:CrispImage Width="14" Height="14" Moniker="{x:Static catalog:KnownMonikers.UnsyncedCommits}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="ToggleBorder" Property="BorderThickness" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter TargetName="ToggleBorder" Property="BorderThickness" Value="0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </ToggleButton.Template>
+            </ToggleButton>
         </StackPanel>
 
-        <Border Grid.Row="1" Padding="10" BorderThickness="1" BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}">
+        <Border Grid.Row="{Binding Revision2.GridRow, FallbackValue=1}" Padding="10" BorderThickness="1" 
+                BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}">
             <StackPanel>
                 <TextBlock TextWrapping="Wrap">
                     <Run FontWeight="Bold">Commit:</Run>
@@ -61,9 +105,10 @@
             </StackPanel>
         </Border>
 
-        <GridSplitter Grid.Row="2" Height="5" HorizontalAlignment="Stretch" />
+        <GridSplitter Grid.Row="2" Height="5" HorizontalAlignment="Stretch" Visibility="{Binding BothCommitsVisible}"/>
 
-        <Border Grid.Row="3" Padding="10" BorderThickness="1" BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}">
+        <Border Grid.Row="{Binding Revision1.GridRow, FallbackValue=3}" Padding="10" BorderThickness="1" 
+                BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}" Visibility="{Binding BothCommitsVisible}">
             <StackPanel>
                 <TextBlock TextWrapping="Wrap">
                     <Run FontWeight="Bold">Commit:</Run>

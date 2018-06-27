@@ -17,7 +17,7 @@ namespace GitBlamer.Helpers
         public static List<Revision> Revisions;
         public static CommitDetailsViewModel ViewModel;
 
-        public static Revision SaveRevisionToFile(DTE dte, Revision revision)
+        public static Revision SaveRevisionToFile(DTE dte, Revision revision, int gridRow)
         {
             var fileName = Path.GetFileNameWithoutExtension(revision.FilePath);
             var fileExtension = Path.GetExtension(revision.FilePath);
@@ -28,6 +28,7 @@ namespace GitBlamer.Helpers
 
             revision.RevisionPath = revisionPath;
             revision.FileDisplayName = $"{fileName}{fileExtension};{revision.ShortSha}";
+            revision.GridRow = gridRow;
 
             return revision;
         }
@@ -188,7 +189,7 @@ namespace GitBlamer.Helpers
                 return;
             }
 
-            ViewModel.Revision1 = SaveRevisionToFile(dte, revisions[CurrentIndex]);
+            ViewModel.Revision1 = SaveRevisionToFile(dte, revisions[CurrentIndex], 3);
             RevisionPath = ViewModel.Revision1.RevisionPath; 
 
             if (previous)
@@ -200,7 +201,7 @@ namespace GitBlamer.Helpers
                 CurrentIndex--;
             }
             
-            ViewModel.Revision2 = SaveRevisionToFile(dte, revisions[CurrentIndex]);
+            ViewModel.Revision2 = SaveRevisionToFile(dte, revisions[CurrentIndex], 1);
 
             ViewModel.MoveRevision();
 

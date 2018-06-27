@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using GitBlamer.Helpers;
+using System.Windows;
 
 namespace GitBlamer.Models
 {
@@ -51,6 +52,23 @@ namespace GitBlamer.Models
 
         public bool PreviousRevisionCommandGrayscale => !PreviousRevisionCommandIsEnabled;
         public bool LaterRevisionCommandGrayscale => !LaterRevisionCommandIsEnabled;
+
+        private bool _showBothCommits;
+        public bool ShowBothCommits
+        {
+            get
+            {
+                return _showBothCommits;
+            }
+            set
+            {
+                _showBothCommits = value;
+                NotifyOfPropertyChange("ShowBothCommits");
+                NotifyOfPropertyChange("BothCommitsVisible");
+            }
+        }
+
+        public Visibility BothCommitsVisible => ShowBothCommits ? Visibility.Visible : Visibility.Collapsed;
 
         public void MoveRevision()
         {

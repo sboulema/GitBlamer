@@ -12,7 +12,7 @@ Quickly step through the Git history of a file
   - Message
 
 ## Installing
-Visual Studio Marketplace
+[Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=SamirBoulema.GitBlamer)
 
 [Github Releases](https://github.com/sboulema/GitBlamer/releases)
 
