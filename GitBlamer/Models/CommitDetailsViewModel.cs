@@ -9,10 +9,7 @@ namespace GitBlamer.Models
         private Revision _revision1;
         public Revision Revision1
         {
-            get
-            {
-                return _revision1;
-            }
+            get => _revision1;
             set
             {
                 _revision1 = value;
@@ -23,10 +20,7 @@ namespace GitBlamer.Models
         private Revision _revision2;
         public Revision Revision2
         {
-            get
-            {
-                return _revision2;
-            }
+            get => _revision2;
             set
             {
                 _revision2 = value;
@@ -34,32 +28,15 @@ namespace GitBlamer.Models
             }
         }
 
-        public bool PreviousRevisionCommandIsEnabled
-        {
-            get
-            {
-                return CommandHelper.PreviousRevisionCommandIsEnabled();
-            }
-        }
-
-        public bool LaterRevisionCommandIsEnabled
-        {
-            get
-            {
-                return CommandHelper.LaterRevisionCommandIsEnabled();
-            }
-        }
-
+        public bool PreviousRevisionCommandIsEnabled => CommandHelper.PreviousRevisionCommandIsEnabled();
+        public bool LaterRevisionCommandIsEnabled => CommandHelper.LaterRevisionCommandIsEnabled();
         public bool PreviousRevisionCommandGrayscale => !PreviousRevisionCommandIsEnabled;
         public bool LaterRevisionCommandGrayscale => !LaterRevisionCommandIsEnabled;
 
         private bool _showBothCommits;
         public bool ShowBothCommits
         {
-            get
-            {
-                return _showBothCommits;
-            }
+            get => _showBothCommits;
             set
             {
                 _showBothCommits = value;

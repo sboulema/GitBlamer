@@ -6,6 +6,8 @@
              xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:catalog="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.ImageCatalog"
              xmlns:imaging="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.Imaging"
+             xmlns:models="clr-namespace:GitBlamer.Models"
+             xmlns:toolwindows="clr-namespace:GitBlamer.ToolWindows"
              Background="{DynamicResource {x:Static vsshell:VsBrushes.WindowKey}}"
              Foreground="{DynamicResource {x:Static vsshell:VsBrushes.WindowTextKey}}"
              mc:Ignorable="d"
@@ -15,9 +17,9 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Horizontal" Margin="3">
@@ -85,48 +87,18 @@
 
         <Border Grid.Row="{Binding Revision2.GridRow, FallbackValue=1}" Padding="10" BorderThickness="1" 
                 BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}">
-            <StackPanel>
-                <TextBlock TextWrapping="Wrap">
-                    <Run FontWeight="Bold">Commit:</Run>
-                    <Run Text="{Binding Revision2.ShortSha}"/>
-                </TextBlock>
-                <TextBlock TextWrapping="Wrap">
-                    <Run FontWeight="Bold">Author:</Run>
-                    <Run Text="{Binding Revision2.Name}"/>
-                </TextBlock>
-                <TextBlock TextWrapping="Wrap">
-                    <Run FontWeight="Bold">Subject:</Run>
-                    <Run Text="{Binding Revision2.Subject}"/>
-                </TextBlock>
-                <TextBlock TextWrapping="Wrap" Visibility="{Binding Revision1.HasMessage}">
-                    <Run FontWeight="Bold">Message:</Run>
-                    <Run Text="{Binding Revision2.Message}"/>
-                </TextBlock>
-            </StackPanel>
+            
+            <toolwindows:RevisionControl DataContext="{Binding Revision2}" />
+            
         </Border>
 
         <GridSplitter Grid.Row="2" Height="5" HorizontalAlignment="Stretch" Visibility="{Binding BothCommitsVisible}"/>
 
         <Border Grid.Row="{Binding Revision1.GridRow, FallbackValue=3}" Padding="10" BorderThickness="1" 
                 BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}" Visibility="{Binding BothCommitsVisible}">
-            <StackPanel>
-                <TextBlock TextWrapping="Wrap">
-                    <Run FontWeight="Bold">Commit:</Run>
-                    <Run Text="{Binding Revision1.ShortSha}"/>
-                </TextBlock>
-                <TextBlock TextWrapping="Wrap">
-                    <Run FontWeight="Bold">Author:</Run>
-                    <Run Text="{Binding Revision1.Name}"/>
-                </TextBlock>
-                <TextBlock TextWrapping="Wrap">
-                    <Run FontWeight="Bold">Subject:</Run>
-                    <Run Text="{Binding Revision1.Subject}"/>
-                </TextBlock>
-                <TextBlock TextWrapping="Wrap" Visibility="{Binding Revision2.HasMessage}">
-                    <Run FontWeight="Bold">Message:</Run>
-                    <Run Text="{Binding Revision1.Message}"/>
-                </TextBlock>
-            </StackPanel>
+            
+            <toolwindows:RevisionControl DataContext="{Binding Revision1}" />
+            
         </Border>
             
     </Grid>

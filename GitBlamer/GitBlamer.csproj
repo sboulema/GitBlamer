@@ -62,6 +62,7 @@
     <Compile Include="Command\PreviousRevisionCommand.cs" />
     <Compile Include="GitBlamerPackage.cs" />
     <Compile Include="Helpers\CommandHelper.cs" />
+    <Compile Include="Models\Change.cs" />
     <Compile Include="Models\CommitDetailsViewModel.cs" />
     <Compile Include="Models\Revision.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,6 +70,9 @@
     <Compile Include="ToolWindows\CommitDetailsToolWindowCommand.cs" />
     <Compile Include="ToolWindows\CommitDetailsToolWindowControl.xaml.cs">
       <DependentUpon>CommitDetailsToolWindowControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ToolWindows\RevisionControl.xaml.cs">
+      <DependentUpon>RevisionControl.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -213,6 +217,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="ToolWindows\CommitDetailsToolWindowControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ToolWindows\RevisionControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

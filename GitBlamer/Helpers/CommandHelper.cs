@@ -1,5 +1,6 @@
 ﻿using EnvDTE;
 using GitBlamer.Models;
+using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,8 +17,10 @@ namespace GitBlamer.Helpers
         public static string FilePath;
         public static List<Revision> Revisions;
         public static CommitDetailsViewModel ViewModel;
+        public static IVsImageService2 ImageService;
+        public static DTE Dte;
 
-        public static Revision SaveRevisionToFile(DTE dte, Revision revision, int gridRow)
+        public static Revision SaveRevisionToFile(DTE dte, Revision revision, int gridRow, string compareSide)
         {
             var fileName = Path.GetFileNameWithoutExtension(revision.FilePath);
             var fileExtension = Path.GetExtension(revision.FilePath);
@@ -29,6 +32,7 @@ namespace GitBlamer.Helpers
             revision.RevisionPath = revisionPath;
             revision.FileDisplayName = $"{fileName}{fileExtension};{revision.ShortSha}";
             revision.GridRow = gridRow;
+            revision.CompareSide = compareSide;
 
             return revision;
         }
@@ -48,7 +52,7 @@ namespace GitBlamer.Helpers
 
                 if (string.IsNullOrEmpty(solutionDir) || dte.ActiveDocument == null) return revisions;
 
-                var result = StartProcessGitResult($"log --follow --name-only --format=\"%h|%an|%s|%b\" {FilePath}", solutionDir);
+                var result = StartProcessGitResult($"log --follow --name-only --format=\"%h|%an|%ad|%s|%b\" {FilePath}", solutionDir);
 
                 if (!result.Any())
                 {
@@ -59,9 +63,13 @@ namespace GitBlamer.Helpers
                 for (var i = 0; i < result.Count; i = i + 3)
                 {
                     var lines = result.Skip(i).Take(3).ToList();
-                    var revision = new Revision(lines[0]);
-                    revision.FilePath = lines[2];
-                    revisions.Add(revision);
+
+                    if (lines.Count == 3 && lines[0].Contains("|"))
+                    {
+                        var revision = new Revision(lines[0]);
+                        revision.FilePath = lines[2];
+                        revisions.Add(revision);
+                    }
                 }
 
                 Revisions = revisions;
@@ -81,6 +89,45 @@ namespace GitBlamer.Helpers
             var fileName = Path.GetFileName(revision.FilePath);
 
             return string.Join(Environment.NewLine, StartProcessGitResult($"show {revision.ShortSha}:./{fileName}", fileDirectory));
+        }
+
+        public static Change GetChanges(Revision revision)
+        {
+            var solutionDir = GetSolutionDir(Dte);
+            var fileDirectory = Path.GetDirectoryName(FilePath);
+
+            var results = StartProcessGitResult($" show --name-status --pretty=\"\" {revision.ShortSha}", fileDirectory);
+
+            return MakeTreeFromChanges(results, solutionDir, "Changes");
+        }
+
+        public static Change MakeTreeFromChanges(List<string> results, string solutionDir, 
+            string rootNodeName = "", char separator = '/')
+        {
+            var rootNode = new Change(rootNodeName);
+            foreach (var line in results.Where(x => !string.IsNullOrEmpty(x.Trim())))
+            {
+                var currentNode = rootNode;
+                var status = line.Split('\t')[0];
+                var path = line.Split('\t')[1];
+                var pathItems = path.Split(separator);
+                foreach (var item in pathItems)
+                {
+                    var tmp = currentNode.Changes.Cast<Change>().Where(x => x.Name.Equals(item));
+
+                    if (tmp.Count() > 0)
+                    {
+                        currentNode = tmp.Single();
+                    }
+                    else
+                    {
+                        var newNode = new Change(item, Path.Combine(solutionDir, path.Replace("/", "\\")), status);
+                        currentNode.Changes.Add(newNode);
+                        currentNode = newNode;
+                    }
+                }
+            }
+            return rootNode;
         }
 
         private static string GetSolutionDir(DTE dte)
@@ -189,7 +236,7 @@ namespace GitBlamer.Helpers
                 return;
             }
 
-            ViewModel.Revision1 = SaveRevisionToFile(dte, revisions[CurrentIndex], 3);
+            ViewModel.Revision1 = SaveRevisionToFile(dte, revisions[CurrentIndex], 3, "Right");
             RevisionPath = ViewModel.Revision1.RevisionPath; 
 
             if (previous)
@@ -201,7 +248,7 @@ namespace GitBlamer.Helpers
                 CurrentIndex--;
             }
             
-            ViewModel.Revision2 = SaveRevisionToFile(dte, revisions[CurrentIndex], 1);
+            ViewModel.Revision2 = SaveRevisionToFile(dte, revisions[CurrentIndex], 1, "Left");
 
             ViewModel.MoveRevision();
 

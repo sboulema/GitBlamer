@@ -4,6 +4,7 @@
     using GitBlamer.Helpers;
     using GitBlamer.Models;
     using System.Windows.Controls;
+    using System.Windows.Input;
 
     /// <summary>
     /// Interaction logic for CommitDetailsToolWindowControl.

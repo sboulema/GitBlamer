@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Threading;
 using EnvDTE;
+using GitBlamer.Helpers;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Task = System.Threading.Tasks.Task;
@@ -30,12 +31,15 @@ namespace GitBlamer
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             DTE = await GetServiceAsync(typeof(DTE)) as DTE;
+            CommandHelper.Dte = DTE;
 
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             await PreviousRevisionCommand.InitializeAsync(this);
             await LaterRevisionCommand.InitializeAsync(this);
             await InfoRevisionCommand.InitializeAsync(this);
             await ToolWindows.CommitDetailsToolWindowCommand.InitializeAsync(this);
+
+            CommandHelper.ImageService = await GetServiceAsync(typeof(SVsImageService)) as IVsImageService2;
         }
 
         #endregion
