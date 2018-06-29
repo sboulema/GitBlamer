@@ -17,7 +17,7 @@ namespace GitBlamer.ToolWindows
 
         private void TreeViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Left)
+            if (e.ChangedButton == MouseButton.Left && e.OriginalSource is TextBlock)
             {
                 var filePath = ((e.OriginalSource as TextBlock).DataContext as Change).Path;
                 CommandHelper.Dte.ExecuteCommand("File.OpenFile", filePath);

@@ -1,4 +1,5 @@
-﻿using GitBlamer.Helpers;
+﻿using Caliburn.Micro;
+using GitBlamer.Helpers;
 using Microsoft.VisualStudio.Imaging;
 using Microsoft.VisualStudio.Imaging.Interop;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ using System.Windows.Media.Imaging;
 
 namespace GitBlamer.Models
 {
-    public class Change
+    public class Change : PropertyChangedBase
     {
         public Change(string name, string path = "", string status = "")
         {
@@ -33,7 +34,7 @@ namespace GitBlamer.Models
             {
                 if (Changes.Any())
                 {
-                    return ToImageSource(KnownMonikers.FolderOpened);
+                    return ToImageSource(IsExpanded ? KnownMonikers.FolderOpened : KnownMonikers.FolderClosed);
                 }
                 else if (File.Exists(Path))
                 {
@@ -41,6 +42,17 @@ namespace GitBlamer.Models
                 }
 
                 return ToImageSource(KnownMonikers.Document);
+            }
+        }
+
+        private bool _isExpanded = true;
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set
+            {
+                _isExpanded = value;
+                NotifyOfPropertyChange("ImageSource");
             }
         }
 

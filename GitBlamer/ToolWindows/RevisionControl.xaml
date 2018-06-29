@@ -34,7 +34,7 @@
             <TreeView.ItemContainerStyle>
                 <Style TargetType="{x:Type TreeViewItem}">
                     <EventSetter Event="MouseDoubleClick" Handler="TreeViewItem_MouseDoubleClick" />
-                    <Setter Property="IsExpanded" Value="True" />
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                 </Style>
             </TreeView.ItemContainerStyle>
             <TreeView.Resources>
