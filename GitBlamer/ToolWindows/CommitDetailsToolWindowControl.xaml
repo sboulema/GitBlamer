@@ -85,7 +85,7 @@
         </StackPanel>
 
         <Border Grid.Row="{Binding PreviousRevision.GridRow, FallbackValue=1}" Padding="10" BorderThickness="1" 
-                BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}">
+                BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}" Visibility="{Binding BothCommitsVisible}">
 
             <toolwindows:RevisionControl DataContext="{Binding PreviousRevision}" />
             
@@ -94,7 +94,7 @@
         <GridSplitter Grid.Row="2" Height="5" HorizontalAlignment="Stretch" Visibility="{Binding BothCommitsVisible}"/>
 
         <Border Grid.Row="{Binding LaterRevision.GridRow, FallbackValue=3}" Padding="10" BorderThickness="1" 
-                BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}" Visibility="{Binding BothCommitsVisible}">
+                BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}">
             
             <toolwindows:RevisionControl DataContext="{Binding LaterRevision}" />
             
