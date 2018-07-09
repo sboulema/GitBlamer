@@ -19,6 +19,7 @@ namespace GitBlamer.Helpers
         public static CommitDetailsViewModel ViewModel;
         public static IVsImageService2 ImageService;
         public static DTE Dte;
+        private static Direction currentDirection;
 
         public static Revision SaveRevisionToFile(DTE dte, Revision revision, int gridRow, string compareSide)
         {
@@ -197,7 +198,7 @@ namespace GitBlamer.Helpers
         /// </summary>
         /// <param name="dte"></param>
         /// <param name="previous">Move to a previous revision or later revision</param>
-        public static void MoveRevision(DTE dte, bool previous)
+        public static void MoveRevision(DTE dte, Direction direction)
         {
             if (ViewModel == null)
             {
@@ -230,33 +231,54 @@ namespace GitBlamer.Helpers
             var revisions = GetRevisions(dte);
 
             // Can we make the move between revisions
-            if ((previous && CurrentIndex >= revisions.Count - 1) || 
-                (!previous && CurrentIndex == 0))
+            if (!revisions.Any() ||
+                (direction == Direction.Previous && CurrentIndex >= revisions.Count - 1) || 
+                (direction == Direction.Later && CurrentIndex == 0))
             {
                 return;
             }
 
-            ViewModel.Revision1 = SaveRevisionToFile(dte, revisions[CurrentIndex], 3, "Right");
-            RevisionPath = ViewModel.Revision1.RevisionPath; 
-
-            if (previous)
+            // Handle switching direction
+            if (currentDirection != direction)
             {
+                if (currentDirection == Direction.Previous)
+                {
+                    CurrentIndex--;
+                }
+                else
+                {
+                    CurrentIndex++;
+                }
+            }
+            currentDirection = direction;
+
+            // Move between revisions
+            if (direction == Direction.Previous)
+            {
+                ViewModel.LaterRevision = SaveRevisionToFile(dte, revisions[CurrentIndex], 3, "Right");
+                RevisionPath = ViewModel.LaterRevision.RevisionPath;
+
                 CurrentIndex++;
+
+                ViewModel.PreviousRevision = SaveRevisionToFile(dte, revisions[CurrentIndex], 1, "Left");
             }
             else
             {
-                CurrentIndex--;
-            }
-            
-            ViewModel.Revision2 = SaveRevisionToFile(dte, revisions[CurrentIndex], 1, "Left");
+                ViewModel.PreviousRevision = SaveRevisionToFile(dte, revisions[CurrentIndex], 1, "Left");
+                RevisionPath = ViewModel.LaterRevision.RevisionPath;
 
-            ViewModel.MoveRevision();
+                CurrentIndex--;
+
+                ViewModel.LaterRevision = SaveRevisionToFile(dte, revisions[CurrentIndex], 3, "Right");
+            }
+
+            ViewModel.NotifyOfRevisionMove();
 
             // Open 'Compare Files' tab for the two revisions
-            dte.ExecuteCommand("Tools.DiffFiles", $"\"{ViewModel.Revision2.RevisionPath}\" \"{ViewModel.Revision1.RevisionPath}\" \"{ViewModel.Revision2.FileDisplayName}\" \"{ViewModel.Revision1.FileDisplayName}\"");
+            dte.ExecuteCommand("Tools.DiffFiles", $"\"{ViewModel.PreviousRevision.RevisionPath}\" \"{ViewModel.LaterRevision.RevisionPath}\" \"{ViewModel.PreviousRevision.FileDisplayName}\" \"{ViewModel.LaterRevision.FileDisplayName}\"");
 
-            File.Delete(ViewModel.Revision1.RevisionPath);
-            File.Delete(ViewModel.Revision2.RevisionPath);
+            File.Delete(ViewModel.PreviousRevision.RevisionPath);
+            File.Delete(ViewModel.LaterRevision.RevisionPath);
         }
 
         public static bool PreviousRevisionCommandIsEnabled(DTE dte) 

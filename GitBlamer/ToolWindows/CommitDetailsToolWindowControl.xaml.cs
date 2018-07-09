@@ -30,18 +30,18 @@
         }
 
         private void PreviousRevisionButton_Click(object sender, System.Windows.RoutedEventArgs e) 
-            => CommandHelper.MoveRevision(Dte, true);
+            => CommandHelper.MoveRevision(Dte, Direction.Previous);
 
         private void LaterRevisionButton_Click(object sender, System.Windows.RoutedEventArgs e) 
-            => CommandHelper.MoveRevision(Dte, false);
+            => CommandHelper.MoveRevision(Dte, Direction.Later);
 
         private void ShowBothCommits_Click(object sender, System.Windows.RoutedEventArgs e)
             => ViewModel.ShowBothCommits = !ViewModel.ShowBothCommits;
 
         private void FlipCommits_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            ViewModel.Revision1.GridRow = ViewModel.Revision1.GridRow == 1 ? 3 : 1;
-            ViewModel.Revision2.GridRow = ViewModel.Revision2.GridRow == 1 ? 3 : 1;
+            ViewModel.PreviousRevision.GridRow = ViewModel.PreviousRevision.GridRow == 1 ? 3 : 1;
+            ViewModel.LaterRevision.GridRow = ViewModel.LaterRevision.GridRow == 1 ? 3 : 1;
         }
     }
 }

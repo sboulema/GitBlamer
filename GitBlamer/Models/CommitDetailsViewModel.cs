@@ -6,24 +6,24 @@ namespace GitBlamer.Models
 {
     public class CommitDetailsViewModel : PropertyChangedBase
     {
-        private Revision _revision1;
-        public Revision Revision1
+        private Revision _previousRevision;
+        public Revision PreviousRevision
         {
-            get => _revision1;
+            get => _previousRevision;
             set
             {
-                _revision1 = value;
+                _previousRevision = value;
                 NotifyOfPropertyChange();
             }
         }
 
-        private Revision _revision2;
-        public Revision Revision2
+        private Revision _laterRevision;
+        public Revision LaterRevision
         {
-            get => _revision2;
+            get => _laterRevision;
             set
             {
-                _revision2 = value;
+                _laterRevision = value;
                 NotifyOfPropertyChange();
             }
         }
@@ -47,7 +47,7 @@ namespace GitBlamer.Models
 
         public Visibility BothCommitsVisible => ShowBothCommits ? Visibility.Visible : Visibility.Collapsed;
 
-        public void MoveRevision()
+        public void NotifyOfRevisionMove()
         {
             NotifyOfPropertyChange("PreviousRevisionCommandIsEnabled");
             NotifyOfPropertyChange("LaterRevisionCommandIsEnabled");

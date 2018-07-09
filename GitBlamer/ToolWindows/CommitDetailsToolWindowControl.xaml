@@ -6,7 +6,6 @@
              xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:catalog="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.ImageCatalog"
              xmlns:imaging="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.Imaging"
-             xmlns:models="clr-namespace:GitBlamer.Models"
              xmlns:toolwindows="clr-namespace:GitBlamer.ToolWindows"
              Background="{DynamicResource {x:Static vsshell:VsBrushes.WindowKey}}"
              Foreground="{DynamicResource {x:Static vsshell:VsBrushes.WindowTextKey}}"
@@ -85,19 +84,19 @@
             </ToggleButton>
         </StackPanel>
 
-        <Border Grid.Row="{Binding Revision2.GridRow, FallbackValue=1}" Padding="10" BorderThickness="1" 
+        <Border Grid.Row="{Binding PreviousRevision.GridRow, FallbackValue=1}" Padding="10" BorderThickness="1" 
                 BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}">
-            
-            <toolwindows:RevisionControl DataContext="{Binding Revision2}" />
+
+            <toolwindows:RevisionControl DataContext="{Binding PreviousRevision}" />
             
         </Border>
 
         <GridSplitter Grid.Row="2" Height="5" HorizontalAlignment="Stretch" Visibility="{Binding BothCommitsVisible}"/>
 
-        <Border Grid.Row="{Binding Revision1.GridRow, FallbackValue=3}" Padding="10" BorderThickness="1" 
+        <Border Grid.Row="{Binding LaterRevision.GridRow, FallbackValue=3}" Padding="10" BorderThickness="1" 
                 BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}" Visibility="{Binding BothCommitsVisible}">
             
-            <toolwindows:RevisionControl DataContext="{Binding Revision1}" />
+            <toolwindows:RevisionControl DataContext="{Binding LaterRevision}" />
             
         </Border>
             

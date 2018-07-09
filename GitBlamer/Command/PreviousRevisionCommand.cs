@@ -2,6 +2,7 @@
 using System.ComponentModel.Design;
 using EnvDTE;
 using GitBlamer.Helpers;
+using GitBlamer.Models;
 using Microsoft.VisualStudio.Shell;
 using Task = System.Threading.Tasks.Task;
 
@@ -63,7 +64,7 @@ namespace GitBlamer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            CommandHelper.MoveRevision(_dte, true);
+            CommandHelper.MoveRevision(_dte, Direction.Previous);
         }
     }
 }
