@@ -12,7 +12,7 @@
 
         <TextBlock TextWrapping="Wrap">
                     <Run FontWeight="Bold">Commit:</Run>
-                    <Run Text="{Binding ShortSha}"/>
+                    <Run Text="{Binding ShortHash, Mode=OneWay}"/>
         </TextBlock>
         <TextBlock TextWrapping="Wrap">
                     <Run FontWeight="Bold">Author:</Run>

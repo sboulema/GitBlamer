@@ -10,19 +10,21 @@ namespace GitBlamer.Models
         public Revision(string input)
         {
             var revision = input.Split('|');
-            ShortSha = revision[0];
+            Hash = revision[0];
             Name = revision[1];
             Date = revision[2];
             Subject = revision[3];
             Message = revision[4];
         }
 
-        public string ShortSha { get; set; }
+        public string Hash { get; set; }
         public string Name { get; set; }
         public string Subject { get; set; }
         public string Message { get; set; }
         public string CompareSide { get; set; }
         public string Date { get; set; }
+
+        public string ShortHash => Hash.Substring(0, 8);
 
         public List<Change> Changes => new List<Change> { CommandHelper.GetChanges(this) };
 

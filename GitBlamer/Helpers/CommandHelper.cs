@@ -26,12 +26,12 @@ namespace GitBlamer.Helpers
             var fileName = Path.GetFileNameWithoutExtension(revision.FilePath);
             var fileExtension = Path.GetExtension(revision.FilePath);
             var tempPath = Path.GetTempPath();
-            var revisionPath = Path.Combine(tempPath, $"{fileName};{revision.ShortSha}{fileExtension}");
+            var revisionPath = Path.Combine(tempPath, $"{fileName};{revision.ShortHash}{fileExtension}");
 
             File.WriteAllText(revisionPath, GetText(revision));
 
             revision.RevisionPath = revisionPath;
-            revision.FileDisplayName = $"{fileName}{fileExtension};{revision.ShortSha}";
+            revision.FileDisplayName = $"{fileName}{fileExtension};{revision.ShortHash}";
             revision.GridRow = gridRow;
             revision.CompareSide = compareSide;
 
@@ -53,7 +53,7 @@ namespace GitBlamer.Helpers
 
                 if (string.IsNullOrEmpty(solutionDir) || dte.ActiveDocument == null) return revisions;
 
-                var result = StartProcessGitResult($"log --follow --name-only --format=\"%h|%an|%ad|%s|%b\" {FilePath}", solutionDir);
+                var result = StartProcessGitResult($"log --follow --name-only --format=\"%H|%an|%ad|%s|%b\" {FilePath}", solutionDir);
 
                 if (!result.Any())
                 {
@@ -89,7 +89,7 @@ namespace GitBlamer.Helpers
             var fileDirectory = Path.GetDirectoryName(FilePath);
             var fileName = Path.GetFileName(revision.FilePath);
 
-            return string.Join(Environment.NewLine, StartProcessGitResult($"show {revision.ShortSha}:./{fileName}", fileDirectory));
+            return string.Join(Environment.NewLine, StartProcessGitResult($"show {revision.Hash}:./{fileName}", fileDirectory));
         }
 
         public static Change GetChanges(Revision revision)
@@ -97,7 +97,7 @@ namespace GitBlamer.Helpers
             var solutionDir = GetSolutionDir(Dte);
             var fileDirectory = Path.GetDirectoryName(FilePath);
 
-            var results = StartProcessGitResult($" show --name-status --pretty=\"\" {revision.ShortSha}", fileDirectory);
+            var results = StartProcessGitResult($" show --name-status --pretty=\"\" {revision.Hash}", fileDirectory);
 
             return MakeTreeFromChanges(results, solutionDir, "Changes");
         }
