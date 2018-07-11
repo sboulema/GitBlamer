@@ -203,23 +203,12 @@ namespace GitBlamer.Helpers
             if (ViewModel == null)
             {
                 ViewModel = new CommitDetailsViewModel();
-            }      
+            }
 
             // Close any active 'Compare Files' tab
-            if (dte.ActiveWindow.Caption.Contains(" vs. "))
-            {
-                dte.ActiveWindow.Close();
-            }
+            GetCompareWindow(dte)?.Close();
 
             if (dte.ActiveDocument == null) return;
-
-            // If we changed files clear any history
-            if (!dte.ActiveDocument.FullName.Equals(RevisionPath))
-            {
-                Revisions = null;
-                FilePath = null;
-                RevisionPath = null;
-            }
 
             // Save current file as active
             if (string.IsNullOrEmpty(FilePath))
@@ -255,21 +244,21 @@ namespace GitBlamer.Helpers
             // Move between revisions
             if (direction == Direction.Previous)
             {
-                ViewModel.LaterRevision = SaveRevisionToFile(dte, revisions[CurrentIndex], 3, "Right");
+                ViewModel.LaterRevision = SaveRevisionToFile(dte, revisions[CurrentIndex], 2, "Right");
                 RevisionPath = ViewModel.LaterRevision.RevisionPath;
 
                 CurrentIndex++;
 
-                ViewModel.PreviousRevision = SaveRevisionToFile(dte, revisions[CurrentIndex], 1, "Left");
+                ViewModel.PreviousRevision = SaveRevisionToFile(dte, revisions[CurrentIndex], 0, "Left");
             }
             else
             {
-                ViewModel.PreviousRevision = SaveRevisionToFile(dte, revisions[CurrentIndex], 1, "Left");
+                ViewModel.PreviousRevision = SaveRevisionToFile(dte, revisions[CurrentIndex], 0, "Left");
                 RevisionPath = ViewModel.LaterRevision.RevisionPath;
 
                 CurrentIndex--;
 
-                ViewModel.LaterRevision = SaveRevisionToFile(dte, revisions[CurrentIndex], 3, "Right");
+                ViewModel.LaterRevision = SaveRevisionToFile(dte, revisions[CurrentIndex], 2, "Right");
             }
 
             ViewModel.NotifyOfRevisionMove();
@@ -279,6 +268,40 @@ namespace GitBlamer.Helpers
 
             File.Delete(ViewModel.PreviousRevision.RevisionPath);
             File.Delete(ViewModel.LaterRevision.RevisionPath);
+        }
+
+        /// <summary>
+        /// Reset any state saved while moving between and getting revisions
+        /// </summary>
+        public static void Reset(DTE dte)
+        {
+            if (dte.ActiveDocument == null ||
+                dte.ActiveWindow.Caption.Contains(" vs. ") ||
+                RevisionPath == null ||
+                dte.ActiveDocument.FullName.Equals(ViewModel.LaterRevision.RevisionPath) ||
+                dte.ActiveDocument.FullName.Equals(ViewModel.PreviousRevision.RevisionPath)) return;
+
+            if (!dte.ActiveDocument.FullName.Equals(FilePath))
+            {
+                CurrentIndex = 0;
+                RevisionPath = null;
+                FilePath = null;
+                Revisions = null;
+                ViewModel.PreviousRevision = null;
+                ViewModel.LaterRevision = null;
+            }           
+        }
+
+        public static Window GetCompareWindow(DTE dte)
+        {
+            var leftFileName = Path.GetFileNameWithoutExtension(ViewModel.PreviousRevision?.RevisionPath) + " - Copy" +
+                Path.GetExtension(ViewModel.PreviousRevision?.RevisionPath);
+
+            return dte.Windows.Cast<Window>()
+                .FirstOrDefault(w => w.Caption.Equals(
+                    " " + leftFileName + " vs. " +
+                    Path.GetFileName(ViewModel.LaterRevision?.RevisionPath))
+                );
         }
 
         public static bool PreviousRevisionCommandIsEnabled(DTE dte) 

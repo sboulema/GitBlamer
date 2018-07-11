@@ -21,6 +21,7 @@ namespace GitBlamer
     {
         public const string PackageGuidString = "492cc0c2-bdd8-4279-a8a8-1c353760ad68";
         public DTE DTE;
+        private EventHelper _eventHelper;
 
         public GitBlamerPackage()
         {
@@ -32,6 +33,7 @@ namespace GitBlamer
         {
             DTE = await GetServiceAsync(typeof(DTE)) as DTE;
             CommandHelper.Dte = DTE;
+            _eventHelper = new EventHelper(DTE);
 
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             await PreviousRevisionCommand.InitializeAsync(this);

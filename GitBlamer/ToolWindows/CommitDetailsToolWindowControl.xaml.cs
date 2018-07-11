@@ -40,8 +40,8 @@
 
         private void FlipCommits_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            ViewModel.PreviousRevision.GridRow = ViewModel.PreviousRevision.GridRow == 1 ? 3 : 1;
-            ViewModel.LaterRevision.GridRow = ViewModel.LaterRevision.GridRow == 1 ? 3 : 1;
+            ViewModel.PreviousRevision.GridRow = ViewModel.PreviousRevision.GridRow == 0 ? 2 : 0;
+            ViewModel.LaterRevision.GridRow = ViewModel.LaterRevision.GridRow == 0 ? 2 : 0;
         }
     }
 }

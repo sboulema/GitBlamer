@@ -14,11 +14,10 @@
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
 
     <Grid>
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Horizontal" Margin="3">
@@ -41,7 +40,7 @@
             </Button>
 
             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
-            
+
             <ToggleButton Style="{StaticResource {x:Type ToggleButton}}" Click="ShowBothCommits_Click">
                 <ToggleButton.Template>
                     <ControlTemplate TargetType="ToggleButton">
@@ -84,21 +83,35 @@
             </ToggleButton>
         </StackPanel>
 
-        <Border Grid.Row="{Binding PreviousRevision.GridRow, FallbackValue=1}" Padding="10" BorderThickness="1" 
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="{Binding PreviousRevision.GridRow, FallbackValue=0}" Padding="10" BorderThickness="1" 
                 BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}" Visibility="{Binding BothCommitsVisible}">
 
-            <toolwindows:RevisionControl DataContext="{Binding PreviousRevision}" />
-            
-        </Border>
+                    <toolwindows:RevisionControl DataContext="{Binding PreviousRevision}" />
 
-        <GridSplitter Grid.Row="2" Height="5" HorizontalAlignment="Stretch" Visibility="{Binding BothCommitsVisible}"/>
+                </Border>
 
-        <Border Grid.Row="{Binding LaterRevision.GridRow, FallbackValue=3}" Padding="10" BorderThickness="1" 
+                <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" Visibility="{Binding BothCommitsVisible}"/>
+
+                <Border Grid.Row="{Binding LaterRevision.GridRow, FallbackValue=2}" Padding="10" BorderThickness="1" 
                 BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}">
-            
-            <toolwindows:RevisionControl DataContext="{Binding LaterRevision}" />
-            
-        </Border>
-            
+
+                    <toolwindows:RevisionControl DataContext="{Binding LaterRevision}" />
+
+                </Border>
+
+            </Grid>
+
+        </ScrollViewer>
+
     </Grid>
+
 </UserControl>

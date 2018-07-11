@@ -31,6 +31,15 @@
                     <Run Text="{Binding Message}"/>
         </TextBlock>
         <TreeView ItemsSource="{Binding Changes}" Margin="0,3,0,0">
+            <TreeView.Template>
+                <ControlTemplate TargetType="TreeView">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                SnapsToDevicePixels="true">
+                        <ItemsPresenter/>
+                    </Border>
+                </ControlTemplate>
+            </TreeView.Template>
             <TreeView.ItemContainerStyle>
                 <Style TargetType="{x:Type TreeViewItem}">
                     <EventSetter Event="MouseDoubleClick" Handler="TreeViewItem_MouseDoubleClick" />
