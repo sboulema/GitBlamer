@@ -34,12 +34,12 @@ namespace GitBlamer.Models
         public object FileDisplayName { get; set; }
 
         /// <summary>
-        /// File path of the file we are getting revisions for
+        /// File path of the file in repository we are getting revisions for
         /// </summary>
         public string FilePath { get; set; }
 
         /// <summary>
-        /// File path of the file containing the revision content
+        /// File path of the file on disk containing the specific revision content
         /// </summary>
         public string RevisionPath { get; set; }
 
@@ -56,5 +56,7 @@ namespace GitBlamer.Models
         public Visibility HasMessage => string.IsNullOrEmpty(Message) ? Visibility.Collapsed : Visibility.Visible;
 
         public TextAlignment CompareSideTextAlignment => CompareSide.Equals("Left") ? TextAlignment.Left : TextAlignment.Right;
+
+        public Visibility CompareSideVisibility => CommandHelper.ShowBothCommitsCommandIsEnabled() ? Visibility.Visible : Visibility.Collapsed;
     }
 }

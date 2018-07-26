@@ -4,7 +4,6 @@
     using GitBlamer.Helpers;
     using GitBlamer.Models;
     using System.Windows.Controls;
-    using System.Windows.Input;
 
     /// <summary>
     /// Interaction logic for CommitDetailsToolWindowControl.
@@ -40,8 +39,8 @@
 
         private void FlipCommits_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            ViewModel.PreviousRevision.GridRow = ViewModel.PreviousRevision.GridRow == 0 ? 2 : 0;
-            ViewModel.LaterRevision.GridRow = ViewModel.LaterRevision.GridRow == 0 ? 2 : 0;
+            if (ViewModel.PreviousRevision != null) ViewModel.PreviousRevision.GridRow = ViewModel.PreviousRevision.GridRow == 0 ? 2 : 0;
+            if (ViewModel.LaterRevision != null) ViewModel.LaterRevision.GridRow = ViewModel.LaterRevision.GridRow == 0 ? 2 : 0;
         }
     }
 }

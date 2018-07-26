@@ -28,10 +28,17 @@ namespace GitBlamer.Models
             }
         }
 
+        /// <summary>
+        /// File path of the file on disk we are getting revisions for
+        /// </summary>
+        public string DiskPath { get; set; }
+
         public bool PreviousRevisionCommandIsEnabled => CommandHelper.PreviousRevisionCommandIsEnabled();
         public bool LaterRevisionCommandIsEnabled => CommandHelper.LaterRevisionCommandIsEnabled();
+        public bool ShowBothCommitsCommandIsEnabled => CommandHelper.ShowBothCommitsCommandIsEnabled();
         public bool PreviousRevisionCommandGrayscale => !PreviousRevisionCommandIsEnabled;
         public bool LaterRevisionCommandGrayscale => !LaterRevisionCommandIsEnabled;
+        public bool ShowBothCommitsCommandGrayscale => !ShowBothCommitsCommandIsEnabled;
 
         private bool _showBothCommits;
         public bool ShowBothCommits

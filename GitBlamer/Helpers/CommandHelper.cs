@@ -13,8 +13,6 @@ namespace GitBlamer.Helpers
     public static class CommandHelper
     {
         public static int CurrentIndex;
-        public static string RevisionPath;
-        public static string FilePath;
         public static List<Revision> Revisions;
         public static CommitDetailsViewModel ViewModel;
         public static IVsImageService2 ImageService;
@@ -28,7 +26,7 @@ namespace GitBlamer.Helpers
             var tempPath = Path.GetTempPath();
             var revisionPath = Path.Combine(tempPath, $"{fileName};{revision.ShortHash}{fileExtension}");
 
-            File.WriteAllText(revisionPath, GetText(revision));
+            File.WriteAllText(revisionPath, GetText(ViewModel, revision));
 
             revision.RevisionPath = revisionPath;
             revision.FileDisplayName = $"{fileName}{fileExtension};{revision.ShortHash}";
@@ -53,7 +51,7 @@ namespace GitBlamer.Helpers
 
                 if (string.IsNullOrEmpty(solutionDir) || dte.ActiveDocument == null) return revisions;
 
-                var result = StartProcessGitResult($"log --follow --name-only --format=\"%H|%an|%ad|%s|%b\" {FilePath}", solutionDir);
+                var result = StartProcessGitResult($"log --follow --name-only --format=\"%H|%an|%ad|%s|%b\" \"{ViewModel.DiskPath}\"", solutionDir);
 
                 if (!result.Any())
                 {
@@ -84,25 +82,30 @@ namespace GitBlamer.Helpers
         /// </summary>
         /// <param name="revision"></param>
         /// <returns></returns>
-        public static string GetText(Revision revision)
+        public static string GetText(CommitDetailsViewModel viewModel, Revision revision)
         {
-            var fileDirectory = Path.GetDirectoryName(FilePath);
+            var fileDirectory = Path.GetDirectoryName(viewModel.DiskPath);
             var fileName = Path.GetFileName(revision.FilePath);
 
-            return string.Join(Environment.NewLine, StartProcessGitResult($"show {revision.Hash}:./{fileName}", fileDirectory));
+            return string.Join(Environment.NewLine, StartProcessGitResult($"show \"{revision.Hash}:./{fileName}\"", fileDirectory));
         }
 
+        /// <summary>
+        /// Get all changed files for a given revision
+        /// </summary>
+        /// <param name="revision"></param>
+        /// <returns></returns>
         public static Change GetChanges(Revision revision)
         {
             var solutionDir = GetSolutionDir(Dte);
-            var fileDirectory = Path.GetDirectoryName(FilePath);
+            var fileDirectory = Path.GetDirectoryName(ViewModel.DiskPath);
 
             var results = StartProcessGitResult($" show --name-status --pretty=\"\" {revision.Hash}", fileDirectory);
 
             return MakeTreeFromChanges(results, solutionDir, "Changes");
         }
 
-        public static Change MakeTreeFromChanges(List<string> results, string solutionDir, 
+        private static Change MakeTreeFromChanges(List<string> results, string solutionDir, 
             string rootNodeName = "", char separator = '/')
         {
             var rootNode = new Change(rootNodeName);
@@ -211,9 +214,9 @@ namespace GitBlamer.Helpers
             if (dte.ActiveDocument == null) return;
 
             // Save current file as active
-            if (string.IsNullOrEmpty(FilePath))
+            if (string.IsNullOrEmpty(ViewModel.DiskPath))
             {
-                FilePath = dte.ActiveDocument.FullName;
+                ViewModel.DiskPath = dte.ActiveDocument.FullName;
             }
 
             // Get Git revisions for file
@@ -245,7 +248,6 @@ namespace GitBlamer.Helpers
             if (direction == Direction.Previous)
             {
                 ViewModel.LaterRevision = SaveRevisionToFile(dte, revisions[CurrentIndex], 2, "Right");
-                RevisionPath = ViewModel.LaterRevision.RevisionPath;
 
                 CurrentIndex++;
 
@@ -254,7 +256,6 @@ namespace GitBlamer.Helpers
             else
             {
                 ViewModel.PreviousRevision = SaveRevisionToFile(dte, revisions[CurrentIndex], 0, "Left");
-                RevisionPath = ViewModel.LaterRevision.RevisionPath;
 
                 CurrentIndex--;
 
@@ -276,20 +277,26 @@ namespace GitBlamer.Helpers
         public static void Reset(DTE dte)
         {
             if (dte.ActiveDocument == null ||
+                dte.ActiveWindow == null ||
                 dte.ActiveWindow.Caption.Contains(" vs. ") ||
-                RevisionPath == null ||
-                dte.ActiveDocument.FullName.Equals(ViewModel.LaterRevision.RevisionPath) ||
-                dte.ActiveDocument.FullName.Equals(ViewModel.PreviousRevision.RevisionPath)) return;
+                dte.ActiveDocument.FullName.Equals(ViewModel.LaterRevision?.RevisionPath) ||
+                dte.ActiveDocument.FullName.Equals(ViewModel.PreviousRevision?.RevisionPath)) return;
 
-            if (!dte.ActiveDocument.FullName.Equals(FilePath))
+            if (!dte.ActiveDocument.FullName.Equals(ViewModel.DiskPath))
             {
-                CurrentIndex = 0;
-                RevisionPath = null;
-                FilePath = null;
+                CurrentIndex = 0;             
                 Revisions = null;
+                ViewModel.DiskPath = null;
                 ViewModel.PreviousRevision = null;
                 ViewModel.LaterRevision = null;
-            }           
+            }
+
+            ViewModel.DiskPath = dte.ActiveDocument.FullName;
+            var revisions = GetRevisions(dte);
+            if (revisions.Any())
+            {
+                ViewModel.LaterRevision = SaveRevisionToFile(dte, revisions[CurrentIndex], 0, "Right");
+            }            
         }
 
         public static Window GetCompareWindow(DTE dte)
@@ -312,5 +319,8 @@ namespace GitBlamer.Helpers
 
         public static bool LaterRevisionCommandIsEnabled()
             => Revisions != null && Revisions.Any() && CurrentIndex > 0;
+
+        public static bool ShowBothCommitsCommandIsEnabled()
+            => ViewModel.PreviousRevision != null && ViewModel.LaterRevision != null;
     }
 }

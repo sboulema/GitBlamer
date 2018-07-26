@@ -41,11 +41,12 @@
 
             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
 
-            <ToggleButton Style="{StaticResource {x:Type ToggleButton}}" Click="ShowBothCommits_Click">
+            <ToggleButton Style="{StaticResource {x:Type ToggleButton}}" Click="ShowBothCommits_Click" IsEnabled="{Binding ShowBothCommitsCommandIsEnabled}">
                 <ToggleButton.Template>
                     <ControlTemplate TargetType="ToggleButton">
                         <Border x:Name="ToggleBorder" BorderBrush="SteelBlue" BorderThickness="0">
-                            <imaging:CrispImage x:Name="ToggleButtonImage" Width="14" Height="14" Moniker="{x:Static catalog:KnownMonikers.DocumentCollection}" />
+                            <imaging:CrispImage x:Name="ToggleButtonImage" Width="14" Height="14" Moniker="{x:Static catalog:KnownMonikers.DocumentCollection}" 
+                                                Grayscale="{Binding ShowBothCommitsCommandGrayscale}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
@@ -92,19 +93,19 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <Border Grid.Row="{Binding PreviousRevision.GridRow, FallbackValue=0}" Padding="10" BorderThickness="1" 
-                BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}" Visibility="{Binding BothCommitsVisible}">
+                <Border Grid.Row="{Binding LaterRevision.GridRow, FallbackValue=0}" Padding="10" BorderThickness="1" 
+                BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}">
 
-                    <toolwindows:RevisionControl DataContext="{Binding PreviousRevision}" />
+                    <toolwindows:RevisionControl DataContext="{Binding LaterRevision}" />
 
                 </Border>
 
                 <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" Visibility="{Binding BothCommitsVisible}"/>
 
-                <Border Grid.Row="{Binding LaterRevision.GridRow, FallbackValue=2}" Padding="10" BorderThickness="1" 
-                BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}">
+                <Border Grid.Row="{Binding PreviousRevision.GridRow, FallbackValue=2}" Padding="10" BorderThickness="1" 
+                BorderBrush="{DynamicResource {x:Static vsshell:VsBrushes.ActiveBorderKey}}" Visibility="{Binding BothCommitsVisible}">
 
-                    <toolwindows:RevisionControl DataContext="{Binding LaterRevision}" />
+                    <toolwindows:RevisionControl DataContext="{Binding PreviousRevision}" />
 
                 </Border>
 
