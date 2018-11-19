@@ -278,9 +278,11 @@ namespace GitBlamer.Helpers
         {
             if (dte.ActiveDocument == null ||
                 dte.ActiveWindow == null ||
+                ViewModel == null ||
                 dte.ActiveWindow.Caption.Contains(" vs. ") ||
                 dte.ActiveDocument.FullName.Equals(ViewModel.LaterRevision?.RevisionPath) ||
-                dte.ActiveDocument.FullName.Equals(ViewModel.PreviousRevision?.RevisionPath)) return;
+                dte.ActiveDocument.FullName.Equals(ViewModel.PreviousRevision?.RevisionPath) ||
+                CurrentIndex < 0) return;
 
             if (!dte.ActiveDocument.FullName.Equals(ViewModel.DiskPath))
             {
